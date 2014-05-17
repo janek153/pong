@@ -6,13 +6,19 @@ package com.example.Pong;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.os.Handler;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 
 public class GameView extends View {
     private Ball ball;
+    private Context mcontext;
+    private Paddle paddle;
     private GameBackgroundView gameBackgroundView;
+    private Handler h;
+    private final int FRAME_RATE = 10;
 
     // For touch inputs - previous touch (x, y)
     private float previousX;
@@ -21,10 +27,11 @@ public class GameView extends View {
     // Constructor
     public GameView(Context context) {
         super(context);
-
-        gameBackgroundView = new GameBackgroundView(0xff5EFF52);  // ARGB
-        ball = new Ball(Color.BLACK);
-
+        gameBackgroundView = new GameBackgroundView(0xff5A180F);  // ARGB
+        ball = new Ball(context, gameBackgroundView);
+        paddle = new Paddle(Color.RED);
+        mcontext = context;
+        h = new Handler();
 
         // To enable keypad
         this.setFocusable(true);
@@ -38,19 +45,20 @@ public class GameView extends View {
     protected void onDraw(Canvas canvas) {
         // Draw the components
         gameBackgroundView.draw(canvas);
-        ball.draw(canvas);
+        ball.onDraw(canvas);
+        ball.moveWithCollisionDetection();
+        //ball.draw(canvas);
+        paddle.draw(canvas);
+        h.postDelayed(r, FRAME_RATE);
 
 
         // Update the position of the ball, including collision detection and reaction.
-        ball.moveWithCollisionDetection(gameBackgroundView);
+
 
 
         // Delay
-        try {
-            Thread.sleep(30);
-        } catch (InterruptedException e) { }
 
-        invalidate();  // Force a re-draw
+         // Force a re-draw
     }
 
     // Called back when the view is first created or its size changes.
@@ -59,6 +67,17 @@ public class GameView extends View {
         // Set the movement bounds for the ball
         gameBackgroundView.set(0, 0, w, h);
     }
+    private Runnable r = new Runnable() {
+
+        @Override
+
+        public void run() {
+
+            invalidate();
+
+        }
+
+    };
 
     // Key-up event handler
     /*@Override

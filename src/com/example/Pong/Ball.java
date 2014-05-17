@@ -1,48 +1,47 @@
 package com.example.Pong;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.graphics.drawable.BitmapDrawable;
+import android.os.Handler;
+import android.util.AttributeSet;
+import android.widget.ImageView;
 
 public class Ball {
-    float radius = 5;      // Ball's radius
-    float x = radius + 20;  // Ball's center (x,y)
-    float y = radius + 40;
-    float speedX = 5;       // Ball's speed (x,y)
-    float speedY = 5;
-    private RectF bounds;   // Needed for Canvas.drawOval
-    private Paint paint;    // The paint style, color used for drawing
+    float x = 0;  // Ball's center (x,y)
+    float y = 0;
+    float speedX = 7;       // Ball's speed (x,y)
+    float speedY = 7;
+    private BitmapDrawable ball;
+
+
+    private GameBackgroundView mgameBackgroundView;
 
     // Constructor
-    public Ball(int color) {
-        bounds = new RectF();
-        paint = new Paint();
-        paint.setColor(color);
+    public Ball(Context context, GameBackgroundView gameBackgroundView) {
+
+        ball = (BitmapDrawable) context.getResources().getDrawable(R.drawable.ball);
+        mgameBackgroundView = gameBackgroundView;
     }
 
-    public void moveWithCollisionDetection(GameBackgroundView gameBackgroundView) {
+    public void moveWithCollisionDetection() {
         // Get new (x,y) position
         x += speedX;
         y += speedY;
+
         // Detect collision and react
-        if (x + radius > gameBackgroundView.xMax) {
+        if (x + ball.getBitmap().getWidth()> mgameBackgroundView.xMax || x<0) {
             speedX = -speedX;
-            x = gameBackgroundView.xMax-radius;
-        } else if (x - radius < gameBackgroundView.xMin) {
-            speedX = -speedX;
-            x = gameBackgroundView.xMin+radius;
         }
-        if (y + radius > gameBackgroundView.yMax) {
+
+        if (y + ball.getBitmap().getHeight() > mgameBackgroundView.yMax || y<0) {
             speedY = -speedY;
-            y = gameBackgroundView.yMax - radius;
-        } else if (y - radius < gameBackgroundView.yMin) {
-            speedY = -speedY;
-            y = gameBackgroundView.yMin + radius;
         }
     }
 
-    public void draw(Canvas canvas) {
-        bounds.set(x-radius, y-radius, x+radius, y+radius);
-        canvas.drawOval(bounds, paint);
+    public void onDraw(Canvas c) {
+        c.drawBitmap(ball.getBitmap(), x, y, null);
     }
 }
